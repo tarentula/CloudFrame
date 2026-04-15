@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug CloudFrame",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/CloudFrame.App/bin/Debug/net8.0-windows/CloudFrame.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/CloudFrame.App",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "justMyCode": true
+        },
+        {
+            "name": "Debug CloudFrame (Just My Code off)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/CloudFrame.App/bin/Debug/net8.0-windows/CloudFrame.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/CloudFrame.App",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "justMyCode": false
+        }
+    ]
+}

@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>CloudFrame.App</RootNamespace>
+    <AssemblyName>CloudFrame</AssemblyName>
+    <ApplicationIcon>Resources\cloudframe.ico</ApplicationIcon>
+
+    <!-- Keep startup lean — no splash screen, no CER preamble -->
+    <StartupObject>CloudFrame.App.Program</StartupObject>
+
+    <!-- Run at below-normal priority to stay quiet on old hardware -->
+    <!-- (Set in Program.cs via Process.GetCurrentProcess().PriorityClass) -->
+
+    <!-- Trim unused framework code in Release builds -->
+    <PublishSingleFile>false</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CloudFrame.Core\CloudFrame.Core.csproj" />
+    <ProjectReference Include="..\CloudFrame.Providers.OneDrive\CloudFrame.Providers.OneDrive.csproj" />
+  </ItemGroup>
+
+  <ItemGroup><!-- No extra NuGet packages needed in the App project — WinForms is included
+         via UseWindowsForms. The providers bring in MSAL transitively. -->
+  
+    <Folder Include="Resources\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Placeholder icon — replace with your own .ico before first build -->
+    <None Update="Resources\cloudframe.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
