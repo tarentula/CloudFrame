@@ -53,6 +53,7 @@ namespace CloudFrame.App.Engine
         private System.Threading.Timer? _slideTimer;
         private System.Threading.Timer? _indexRefreshTimer;
         private CancellationTokenSource _cts = new();
+        private int _slideIntervalMs;
 
         // Currently displayed bitmap — disposed when the next slide arrives.
         private PrefetchedImage? _current;
@@ -108,12 +109,12 @@ namespace CloudFrame.App.Engine
             // We do NOT await AdvanceSlideAsync() here — with an empty index it
             // would block forever waiting for the queue, preventing the cloud
             // refresh from ever starting.
-            int intervalMs = Math.Max(1000, _settings.SlideDurationSeconds * 1000);
+            _slideIntervalMs = Math.Max(1000, _settings.SlideDurationSeconds * 1000);
             _slideTimer = new System.Threading.Timer(
                 _ => _ = AdvanceSlideAsync(),
                 null,
-                dueTime: intervalMs,   // first tick after one full interval
-                period: intervalMs);
+                dueTime: _slideIntervalMs,   // first tick after one full interval
+                period: _slideIntervalMs);
 
             // Fast-start: poll every 500 ms until the first slide is shown.
             // Without this the user has to wait a full SlideDurationSeconds (e.g.
@@ -155,8 +156,7 @@ namespace CloudFrame.App.Engine
         public Task ResumeAsync()
         {
             _paused = false;
-            int intervalMs = _settings.SlideDurationSeconds * 1000;
-            _slideTimer?.Change(intervalMs, intervalMs);
+            _slideTimer?.Change(_slideIntervalMs, _slideIntervalMs);
             return Task.CompletedTask;
         }
 
@@ -221,6 +221,9 @@ namespace CloudFrame.App.Engine
                 }
 
                 _firstSlideShown = true;
+                // Reset the timer so the next auto-advance is always a full
+                // interval from now, regardless of what triggered this slide.
+                _slideTimer?.Change(_slideIntervalMs, _slideIntervalMs);
                 Trace.TraceInformation("[Engine] SlideReady: '{0}'.", next.Entry.Name);
                 SlideReady?.Invoke(new SlideEventArgs(next.Bitmap, next.Entry));
             }
@@ -254,6 +257,8 @@ namespace CloudFrame.App.Engine
                 var current = Interlocked.Exchange(ref _current, prev);
                 current?.Dispose();
 
+                // Reset the timer so the next auto-advance is a full interval from now.
+                _slideTimer?.Change(_slideIntervalMs, _slideIntervalMs);
                 Trace.TraceInformation("[Engine] PreviousSlide: '{0}'.", prev.Entry.Name);
                 SlideReady?.Invoke(new SlideEventArgs(prev.Bitmap, prev.Entry));
             }
